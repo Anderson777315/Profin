@@ -19,6 +19,9 @@ module.exports = app => {
       router.get("/buscar1/:nombre_completo", usuarios.findByName);
         // 🔍 Buscar usuario por nombre_usuario
   router.get("/buscar2/:nombre_usuario", usuarios.findByUsername);
+  // Login de usuario
+router.post("/login", usuarios.login);
+
   app.use('/api/usuarios', router);
 
 };

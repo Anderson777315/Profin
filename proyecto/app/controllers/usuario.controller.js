@@ -102,3 +102,40 @@ exports.findByUsername = async (req, res) => {
         res.status(500).send({ message: err.message || "Error al buscar usuarios" });
     }
 };
+// Login de usuario
+exports.login = async (req, res) => {
+  const db = require("../models");
+  const Usuario = db.usuario;
+
+  const { nombre_usuario, contrasena_hash } = req.body;
+
+  if (!nombre_usuario || !contrasena_hash) {
+    return res.status(400).send({ message: "Faltan datos de inicio de sesión" });
+  }
+
+  try {
+    const usuario = await Usuario.findOne({ where: { nombre_usuario } });
+
+    if (!usuario) {
+      return res.status(404).send({ message: "Usuario no encontrado" });
+    }
+
+
+    if (usuario.contrasena_hash !== contrasena_hash) {
+      return res.status(401).send({ message: "Contraseña incorrecta" });
+    }
+
+    res.status(200).send({
+      message: "Inicio de sesión exitoso",
+      usuario: {
+        id_usuario: usuario.id_usuario,
+        nombre_usuario: usuario.nombre_usuario,
+        rol: usuario.rol,
+      },
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Error al iniciar sesión",
+    });
+  }
+};
