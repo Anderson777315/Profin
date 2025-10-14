@@ -102,7 +102,7 @@ exports.findByUsername = async (req, res) => {
         res.status(500).send({ message: err.message || "Error al buscar usuarios" });
     }
 };
-// Login de usuario
+// Login de usuario no eliminar debido a que este funciona con encriptado
 /*
 exports.login = async (req, res) => {
   const db = require("../models");
