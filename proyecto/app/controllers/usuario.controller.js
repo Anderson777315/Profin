@@ -51,28 +51,43 @@ exports.findOne = (req, res) => {
         .catch(err => res.status(500).send({ message: "Error al obtener usuario con id=" + id_usuario }));
 };
 
-// Actualizar un usuario por ID
-exports.update = (req, res) => {
+// Actualizar un usuario por ID (con hash si se cambia la contraseña)
+exports.update = async (req, res) => {
     const id_usuario = req.params.id_usuario;
 
-    Usuario.update(req.body, { where: { id_usuario } })
-        .then(num => num == 1 ? res.send({ message: "Usuario actualizado correctamente." }) :
-            res.send({ message: `No se pudo actualizar el usuario con id=${id_usuario}. Quizá no se encontró.` }))
-        .catch(err => res.status(500).send({ message: "Error al actualizar usuario con id=" + id_usuario }));
+    try {
+        const updateData = { ...req.body };
+
+        // Si viene contrasena en la actualización, convertir a hash
+        if (req.body.contrasena) {
+            updateData.contrasena_hash = await bcrypt.hash(req.body.contrasena, 10);
+            delete updateData.contrasena; // borramos para no guardar el campo sin hash
+        }
+
+        const [num] = await Usuario.update(updateData, { where: { id_usuario } });
+
+        if (num === 1) {
+            res.send({ message: "Usuario actualizado correctamente." });
+        } else {
+            res.send({ message: `No se pudo actualizar el usuario con id=${id_usuario}. Quizá no se encontró.` });
+        }
+
+    } catch (err) {
+        res.status(500).send({ message: err.message || "Error al actualizar usuario" });
+    }
 };
-// Buscar usuarios por nombre_completo
+
+// Buscar usuarios por nombre completo
 exports.findByName = async (req, res) => {
     try {
-const nombre_completo = req.params.nombre_completo;
+        const nombre_completo = req.params.nombre_completo;
         if (!nombre_completo) {
             return res.status(400).send({ message: "Falta el parámetro 'nombre_completo' para la búsqueda" });
         }
 
         const usuarios = await Usuario.findAll({
             where: {
-                nombre_completo: {
-                    [Op.iLike]: `%${nombre_completo}%`
-                }
+                nombre_completo: { [Op.iLike]: `%${nombre_completo}%` }
             }
         });
 
@@ -81,7 +96,8 @@ const nombre_completo = req.params.nombre_completo;
         res.status(500).send({ message: err.message || "Error al buscar usuarios por nombre completo." });
     }
 };
-//  Buscar usuarios por nombre_usuario
+
+// Buscar usuarios por nombre_usuario
 exports.findByUsername = async (req, res) => {
     try {
         const nombre_usuario = req.params.nombre_usuario;
@@ -90,11 +106,7 @@ exports.findByUsername = async (req, res) => {
         }
 
         const usuarios = await Usuario.findAll({
-            where: {
-                nombre_usuario: {
-                    [Op.iLike]: `%${nombre_usuario}%`
-                }
-            }
+            where: { nombre_usuario: { [Op.iLike]: `%${nombre_usuario}%` } }
         });
 
         res.send(usuarios);
@@ -102,45 +114,8 @@ exports.findByUsername = async (req, res) => {
         res.status(500).send({ message: err.message || "Error al buscar usuarios" });
     }
 };
-// Login de usuario no eliminar debido a que este funciona con encriptado
-/*
-exports.login = async (req, res) => {
-  const db = require("../models");
-  const Usuario = db.usuario;
 
-  const { nombre_usuario, contrasena_hash } = req.body;
-
-  if (!nombre_usuario || !contrasena_hash) {
-    return res.status(400).send({ message: "Faltan datos de inicio de sesión" });
-  }
-
-  try {
-    const usuario = await Usuario.findOne({ where: { nombre_usuario } });
-
-    if (!usuario) {
-      return res.status(404).send({ message: "Usuario no encontrado" });
-    }
-
-
-    if (usuario.contrasena_hash !== contrasena_hash) {
-      return res.status(401).send({ message: "Contraseña incorrecta" });
-    }
-
-    res.status(200).send({
-      message: "Inicio de sesión exitoso",
-      usuario: {
-        id_usuario: usuario.id_usuario,
-        nombre_usuario: usuario.nombre_usuario,
-        rol: usuario.rol,
-      },
-    });
-  } catch (error) {
-    res.status(500).send({
-      message: error.message || "Error al iniciar sesión",
-    });
-  }
-};*/
-
+// Login de usuario
 exports.login = async (req, res) => {
     const { nombre_usuario, contrasena } = req.body;
 
