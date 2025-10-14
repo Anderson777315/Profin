@@ -140,7 +140,6 @@ exports.login = async (req, res) => {
     });
   }
 };*/
-const bcrypt = require("bcryptjs");
 
 exports.login = async (req, res) => {
   const { nombre_usuario, contrasena_hash } = req.body;
