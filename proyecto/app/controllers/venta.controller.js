@@ -3,32 +3,71 @@ const Venta = db.venta;
 const Op = db.Sequelize.Op;
 
 // Crear una nueva venta
-exports.create = (req, res) => {
-    if (!req.body.id_vendedor || !req.body.cliente_nombre || !req.body.cliente_dpi || !req.body.partido || 
-        req.body.cantidad == null || !req.body.localidad || req.body.precio_unitario == null || 
-        req.body.total_venta == null || !req.body.metodo_pago || !req.body.numero_factura) {
-        res.status(400).send({ message: "Faltan datos obligatorios!" });
-        return;
+exports.create = async (req, res) => {
+    try {
+        // Validar campos obligatorios
+        if (!req.body.id_vendedor || !req.body.cliente_nombre || !req.body.cliente_dpi || !req.body.partido || 
+            req.body.cantidad == null || !req.body.localidad || req.body.precio_unitario == null || 
+            req.body.total_venta == null || !req.body.metodo_pago || !req.body.numero_factura) {
+            return res.status(400).send({ message: "Faltan datos obligatorios!" });
+        }
+
+        // 1. Primero verificar el inventario
+        const inventario = await db.inventarioBoletos.findOne({
+            where: {
+                nombre_partido: req.body.partido,
+                nombre_localidad: req.body.localidad
+            }
+        });
+
+        if (!inventario) {
+            return res.status(400).send({ message: "No se encontró inventario para este partido y localidad" });
+        }
+
+        // 2. Verificar si hay suficientes boletos disponibles
+        if (inventario.cantidad_disponible < req.body.cantidad) {
+            return res.status(400).send({ 
+                message: `No hay suficientes boletos disponibles. Solo quedan: ${inventario.cantidad_disponible}` 
+            });
+        }
+
+        // 3. Crear la venta
+        const venta = {
+            id_vendedor: req.body.id_vendedor,
+            cliente_nombre: req.body.cliente_nombre,
+            cliente_dpi: req.body.cliente_dpi,
+            partido: req.body.partido,
+            cantidad: req.body.cantidad,
+            localidad: req.body.localidad,
+            precio_unitario: req.body.precio_unitario,
+            total_venta: req.body.total_venta,
+            metodo_pago: req.body.metodo_pago,
+            numero_factura: req.body.numero_factura,
+            fecha_venta: req.body.fecha_venta || new Date(),
+            estado: req.body.estado || "pagado"
+        };
+
+        const data = await Venta.create(venta);
+
+        // 4. Actualizar el inventario
+        await db.inventarioBoletos.update(
+            {
+                cantidad_disponible: inventario.cantidad_disponible - req.body.cantidad,
+                boletos_vendidos: inventario.boletos_vendidos + req.body.cantidad
+            },
+            {
+                where: {
+                    nombre_partido: req.body.partido,
+                    nombre_localidad: req.body.localidad
+                }
+            }
+        );
+
+        res.send(data);
+
+    } catch (err) {
+        res.status(500).send({ message: err.message || "Error al crear la venta." });
     }
-
-    const venta = {
-        id_vendedor: req.body.id_vendedor,
-        cliente_nombre: req.body.cliente_nombre,
-        cliente_dpi: req.body.cliente_dpi,
-        partido: req.body.partido,
-        cantidad: req.body.cantidad,
-        localidad: req.body.localidad,
-        precio_unitario: req.body.precio_unitario,
-        total_venta: req.body.total_venta,
-        metodo_pago: req.body.metodo_pago,
-        numero_factura: req.body.numero_factura,
-        fecha_venta: req.body.fecha_venta || new Date(),
-        estado: req.body.estado || "pagado"
-    };
-
-    Venta.create(venta)
-        .then(data => res.send(data))
-        .catch(err => res.status(500).send({ message: err.message || "Error al crear la venta." }));
 };
 
 // Obtener todas las ventas
