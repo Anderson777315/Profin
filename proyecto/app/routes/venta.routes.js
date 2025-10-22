@@ -3,9 +3,9 @@ module.exports = app => {
 
     var router = require("express").Router();
 
-    router.post("/create", ventas.create);
+   router.post("/create", ventas.create);
     router.get("/", ventas.findAll);
-    router.get("/:id_venta", ventas.findOne);
+    router.get("/search/:id_venta", ventas.findOne); 
     router.put("/:id_venta", ventas.update);
 
 
