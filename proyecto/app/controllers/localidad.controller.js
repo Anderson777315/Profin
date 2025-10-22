@@ -3,23 +3,37 @@ const Localidad = db.localidad;
 const Op = db.Sequelize.Op;
 
 // Crear una nueva localidad
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     if (!req.body.nombre || !req.body.precio) {
-        res.status(400).send({ message: "Faltan datos obligatorios!" });
-        return;
+        return res.status(400).send({ message: "Faltan datos obligatorios!" });
     }
 
-    const localidad = {
-        nombre: req.body.nombre,
+    try {
+        // VERIFICAR SI YA EXISTE localidad con mismo nombre
+        const localidadExistente = await Localidad.findOne({
+            where: { nombre: req.body.nombre }
+        });
+
+        if (localidadExistente) {
+            return res.status(400).send({ 
+                message: `Ya existe una localidad con el nombre: ${req.body.nombre}` 
+            });
+        }
+
+        const localidad = {
+            nombre: req.body.nombre,
             precio: req.body.precio,
             capacidad_maxima: req.body.capacidad_maxima,
             descripcion: req.body.descripcion || null,
             estado: req.body.estado || "activo"
-    };
+        };
 
-    Localidad.create(localidad)
-        .then(data => res.send(data))
-        .catch(err => res.status(500).send({ message: err.message || "Error al crear la localidad." }));
+        const data = await Localidad.create(localidad);
+        res.send(data);
+
+    } catch (err) {
+        res.status(500).send({ message: err.message || "Error al crear la localidad." });
+    }
 };
 
 // Obtener todas las localidades
@@ -45,8 +59,7 @@ exports.findOne = (req, res) => {
 exports.update = (req, res) => {
     const id_localidad = req.params.id_localidad;
 
-Localidad.update(req.body, { where: { id_localidad: id_localidad } })
-
+    Localidad.update(req.body, { where: { id_localidad: id_localidad } })
         .then(num => {
             if (num[0] === 1) {
                 res.send({ message: "Localidad actualizada correctamente." });
@@ -63,6 +76,7 @@ exports.findAllActive = (req, res) => {
         .then(data => res.send(data))
         .catch(err => res.status(500).send({ message: err.message || "Error al obtener las localidades activas." }));
 };
+
 // Buscar localidad por nombre
 exports.findByName = (req, res) => {
     const nombre = req.params.nombre;

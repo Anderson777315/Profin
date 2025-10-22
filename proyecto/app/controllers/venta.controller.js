@@ -2,15 +2,39 @@ const db = require("../models");
 const Venta = db.venta;
 const Op = db.Sequelize.Op;
 
+// Funcion para generar numero de factura autoincrementable
+const generarNumeroFactura = async () => {
+    try {
+        const ultimaVenta = await Venta.findOne({
+            order: [['id_venta', 'DESC']]
+        });
+        
+        let siguienteNumero = 1;
+        if (ultimaVenta && ultimaVenta.numero_factura) {
+            const match = ultimaVenta.numero_factura.match(/FACT-(\d+)/);
+            if (match && match[1]) {
+                siguienteNumero = parseInt(match[1]) + 1;
+            }
+        }
+        
+        return `FACT-${String(siguienteNumero).padStart(6, '0')}`;
+    } catch (error) {
+        return `FACT-${Date.now()}`;
+    }
+};
+
 // Crear una nueva venta
 exports.create = async (req, res) => {
     try {
-        // Validar campos obligatorios
+        // Validar campos obligatorios (numero_factura removido)
         if (!req.body.id_vendedor || !req.body.cliente_nombre || !req.body.cliente_dpi || !req.body.partido || 
             req.body.cantidad == null || !req.body.localidad || req.body.precio_unitario == null || 
-            req.body.total_venta == null || !req.body.metodo_pago || !req.body.numero_factura) {
+            req.body.total_venta == null || !req.body.metodo_pago) {
             return res.status(400).send({ message: "Faltan datos obligatorios!" });
         }
+
+        // Generar numero de factura automaticamente
+        const numeroFactura = await generarNumeroFactura();
 
         // 1. Primero verificar el inventario
         const inventario = await db.inventarioBoletos.findOne({
@@ -42,7 +66,7 @@ exports.create = async (req, res) => {
             precio_unitario: req.body.precio_unitario,
             total_venta: req.body.total_venta,
             metodo_pago: req.body.metodo_pago,
-            numero_factura: req.body.numero_factura,
+            numero_factura: numeroFactura,
             fecha_venta: req.body.fecha_venta || new Date(),
             estado: req.body.estado || "pagado"
         };

@@ -10,6 +10,30 @@ exports.create = async (req, res) => {
     }
 
     try {
+        // ✅ VERIFICAR SI YA EXISTE nombre_usuario
+        const usuarioExistente = await Usuario.findOne({
+            where: { nombre_usuario: req.body.nombre_usuario }
+        });
+
+        if (usuarioExistente) {
+            return res.status(400).send({ 
+                message: `Ya existe un usuario con el nombre: ${req.body.nombre_usuario}` 
+            });
+        }
+
+        // ✅ VERIFICAR SI YA EXISTE correo (si se proporciona)
+        if (req.body.correo) {
+            const correoExistente = await Usuario.findOne({
+                where: { correo: req.body.correo }
+            });
+
+            if (correoExistente) {
+                return res.status(400).send({ 
+                    message: `Ya existe un usuario con el correo: ${req.body.correo}` 
+                });
+            }
+        }
+
         // Encriptar la contraseña
         const contrasena_hash = await bcrypt.hash(req.body.contrasena, 10);
 

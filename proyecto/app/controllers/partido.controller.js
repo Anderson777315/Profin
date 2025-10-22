@@ -3,27 +3,45 @@ const Partido = db.partido;
 const Op = db.Sequelize.Op;
 
 // Crear un nuevo partido
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     if (!req.body.equipo || !req.body.tipo_equipo || !req.body.fecha_partido || !req.body.estadio) {
-        res.status(400).send({ message: "Faltan datos obligatorios!" });
-        return;
+        return res.status(400).send({ message: "Faltan datos obligatorios!" });
     }
 
-    const partido = {
-        equipo: req.body.equipo,
-        tipo_equipo: req.body.tipo_equipo,
-        fecha_partido: req.body.fecha_partido,
-        estadio: req.body.estadio,
-        torneo: req.body.torneo || null,
-        temporada: req.body.temporada || null,
-        arbitro_principal: req.body.arbitro_principal || null,
-        marcador: req.body.marcador || 0,
-        estado: req.body.estado || "programado"
-    };
+    try {
+        // ✅ VERIFICAR SI YA EXISTE partido con mismo equipo, fecha y estadio
+        const partidoExistente = await Partido.findOne({
+            where: {
+                equipo: req.body.equipo,
+                fecha_partido: req.body.fecha_partido,
+                estadio: req.body.estadio
+            }
+        });
 
-    Partido.create(partido)
-        .then(data => res.send(data))
-        .catch(err => res.status(500).send({ message: err.message || "Error al crear el partido." }));
+        if (partidoExistente) {
+            return res.status(400).send({ 
+                message: `Ya existe un partido para: ${req.body.equipo} en ${req.body.estadio} en la fecha ${req.body.fecha_partido}` 
+            });
+        }
+
+        const partido = {
+            equipo: req.body.equipo,
+            tipo_equipo: req.body.tipo_equipo,
+            fecha_partido: req.body.fecha_partido,
+            estadio: req.body.estadio,
+            torneo: req.body.torneo || null,
+            temporada: req.body.temporada || null,
+            arbitro_principal: req.body.arbitro_principal || null,
+            marcador: req.body.marcador || 0,
+            estado: req.body.estado || "programado"
+        };
+
+        const data = await Partido.create(partido);
+        res.send(data);
+
+    } catch (err) {
+        res.status(500).send({ message: err.message || "Error al crear el partido." });
+    }
 };
 
 // Obtener todos los partidos

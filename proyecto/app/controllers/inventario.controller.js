@@ -3,23 +3,40 @@ const InventarioBoletos = db.inventarioBoletos;
 const Op = db.Sequelize.Op;
 
 // Crear un nuevo registro de inventario
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     if (!req.body.nombre_partido || !req.body.nombre_localidad || req.body.cantidad_total == null) {
-        res.status(400).send({ message: "Faltan datos obligatorios!" });
-        return;
+        return res.status(400).send({ message: "Faltan datos obligatorios!" });
     }
 
-    const inventario = {
-        nombre_partido: req.body.nombre_partido,
-        nombre_localidad: req.body.nombre_localidad,
-        cantidad_total: req.body.cantidad_total,
-        cantidad_disponible: req.body.cantidad_disponible || req.body.cantidad_total,
-        boletos_vendidos: req.body.boletos_vendidos || 0
-    };
+    try {
+        //  VERIFICAR SI YA EXISTE esta combinación
+        const inventarioExistente = await InventarioBoletos.findOne({
+            where: {
+                nombre_partido: req.body.nombre_partido,
+                nombre_localidad: req.body.nombre_localidad
+            }
+        });
 
-    InventarioBoletos.create(inventario)
-        .then(data => res.send(data))
-        .catch(err => res.status(500).send({ message: err.message || "Error al crear el registro de inventario." }));
+        if (inventarioExistente) {
+            return res.status(400).send({ 
+                message: `Ya existe inventario para: ${req.body.nombre_partido} - ${req.body.nombre_localidad}. Use actualizar en lugar de crear.` 
+            });
+        }
+
+        const inventario = {
+            nombre_partido: req.body.nombre_partido,
+            nombre_localidad: req.body.nombre_localidad,
+            cantidad_total: req.body.cantidad_total,
+            cantidad_disponible: req.body.cantidad_disponible || req.body.cantidad_total,
+            boletos_vendidos: req.body.boletos_vendidos || 0
+        };
+
+        const data = await InventarioBoletos.create(inventario);
+        res.send(data);
+
+    } catch (err) {
+        res.status(500).send({ message: err.message || "Error al crear el registro de inventario." });
+    }
 };
 
 // Obtener todos los registros de inventario
