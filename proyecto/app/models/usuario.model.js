@@ -34,7 +34,8 @@ module.exports = (sequelize, Sequelize) => {
             defaultValue: "activo"
         },
         ultimo_acceso: {
-            type: Sequelize.DATE
+            type: Sequelize.DATE,
+            defaultValue: Sequelize.NOW  
         },
         fecha_creacion: {
             type: Sequelize.DATE,
