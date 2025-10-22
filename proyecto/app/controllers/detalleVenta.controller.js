@@ -7,8 +7,7 @@ const Op = db.Sequelize.Op;
 exports.create = async (req, res) => {
     try {
         // Validar campos obligatorios
-        if (!req.body.id_venta || !req.body.id_localidad || !req.body.id_partido || req.body.cantidad == null || req.body.precio_unitario == null)
- {
+        if (!req.body.id_venta || !req.body.nombre_localidad || !req.body.nombre_partido || req.body.cantidad == null || req.body.precio_unitario == null) {
             return res.status(400).send({ message: "Faltan datos obligatorios!" });
         }
 
@@ -21,8 +20,8 @@ exports.create = async (req, res) => {
         // Crear detalle de venta
         const detalleVenta = {
             id_venta: req.body.id_venta,
-            id_partido: req.body.id_partido,
-            id_localidad: req.body.id_localidad,
+            nombre_partido: req.body.nombre_partido,
+            nombre_localidad: req.body.nombre_localidad,
             cantidad: Number(req.body.cantidad),
             precio_unitario: Number(req.body.precio_unitario),
             subtotal: Number(req.body.cantidad) * Number(req.body.precio_unitario),

@@ -32,6 +32,10 @@ db.inventarioBoletos = require("./inventario.model.js")(sequelize, Sequelize);
 db.venta = require("./venta.model.js")(sequelize, Sequelize);
 db.detalleVenta = require("./detalleVenta.model.js")(sequelize, Sequelize);
 
+
+
+
+/*
 // Relaciones
 // Usuarios y Ventas
 db.usuario.hasMany(db.venta, { foreignKey: 'id_vendedor' });
@@ -52,4 +56,9 @@ db.detalleVenta.belongsTo(db.partido, { foreignKey: 'id_partido' });
 db.localidad.hasMany(db.detalleVenta, { foreignKey: 'id_localidad' });
 db.detalleVenta.belongsTo(db.localidad, { foreignKey: 'id_localidad' });
 // Exportamos db para poder usarlo en otros archivos
+module.exports = db;*/
+db.usuario.hasMany(db.venta, { foreignKey: 'id_vendedor' });
+db.venta.belongsTo(db.usuario, { foreignKey: 'id_vendedor' });
+db.venta.hasMany(db.detalleVenta, { foreignKey: 'id_venta' });
+db.detalleVenta.belongsTo(db.venta, { foreignKey: 'id_venta' });
 module.exports = db;

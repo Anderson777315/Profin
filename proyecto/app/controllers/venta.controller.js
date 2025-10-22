@@ -4,20 +4,26 @@ const Op = db.Sequelize.Op;
 
 // Crear una nueva venta
 exports.create = (req, res) => {
-    if (!req.body.id_vendedor || req.body.total_venta == null) {
+    if (!req.body.id_vendedor || !req.body.cliente_nombre || !req.body.cliente_dpi || !req.body.partido || 
+        req.body.cantidad == null || !req.body.localidad || req.body.precio_unitario == null || 
+        req.body.total_venta == null || !req.body.metodo_pago || !req.body.numero_factura) {
         res.status(400).send({ message: "Faltan datos obligatorios!" });
         return;
     }
 
     const venta = {
-       id_vendedor: req.body.id_vendedor,
-            fecha_venta: req.body.fecha_venta || new Date(),
-            metodo_pago: req.body.metodo_pago,
-            total_venta: req.body.total_venta,
-            numero_factura: req.body.numero_factura || null,
-            estado: req.body.estado || "pagado",
-            cliente_nombre: req.body.cliente_nombre || null,
-            cliente_dpi: req.body.cliente_dpi || null
+        id_vendedor: req.body.id_vendedor,
+        cliente_nombre: req.body.cliente_nombre,
+        cliente_dpi: req.body.cliente_dpi,
+        partido: req.body.partido,
+        cantidad: req.body.cantidad,
+        localidad: req.body.localidad,
+        precio_unitario: req.body.precio_unitario,
+        total_venta: req.body.total_venta,
+        metodo_pago: req.body.metodo_pago,
+        numero_factura: req.body.numero_factura,
+        fecha_venta: req.body.fecha_venta || new Date(),
+        estado: req.body.estado || "pagado"
     };
 
     Venta.create(venta)

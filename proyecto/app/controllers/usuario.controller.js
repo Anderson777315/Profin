@@ -115,7 +115,7 @@ exports.findByUsername = async (req, res) => {
     }
 };
 
-// Login de usuario
+// ✅ Login de usuario (con validación de estado activo/inactivo)
 exports.login = async (req, res) => {
     const { nombre_usuario, contrasena } = req.body;
 
@@ -127,13 +127,20 @@ exports.login = async (req, res) => {
         const usuario = await Usuario.findOne({ where: { nombre_usuario } });
         if (!usuario) return res.status(404).send({ message: "Usuario no encontrado" });
 
+        // Verificar estado
+        if (usuario.estado && usuario.estado.toLowerCase() === "inactivo") {
+            return res.status(401).send({ message: "Usuario inactivo. Contacte al administrador." });
+        }
+
         const validPassword = await bcrypt.compare(contrasena, usuario.contrasena_hash);
         if (!validPassword) return res.status(401).send({ message: "Contraseña incorrecta" });
 
         res.status(200).send({
             id_usuario: usuario.id_usuario,
             nombre_usuario: usuario.nombre_usuario,
-            rol: usuario.rol
+            nombre_completo: usuario.nombre_completo,
+            rol: usuario.rol,
+            estado: usuario.estado
         });
     } catch (error) {
         res.status(500).send({ message: error.message || "Error al iniciar sesión" });

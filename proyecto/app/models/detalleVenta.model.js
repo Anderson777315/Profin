@@ -9,12 +9,12 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             allowNull: false
         },
-        id_partido: {
-            type: Sequelize.INTEGER,
+        nombre_partido: {
+            type: Sequelize.STRING(200),
             allowNull: false
         },
-        id_localidad: {
-            type: Sequelize.INTEGER,
+        nombre_localidad: {
+            type: Sequelize.STRING(100),
             allowNull: false
         },
         cantidad: {

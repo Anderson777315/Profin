@@ -4,17 +4,18 @@ const Op = db.Sequelize.Op;
 
 // Crear un nuevo registro de inventario
 exports.create = (req, res) => {
-    if (!req.body.id_partido || !req.body.id_localidad || req.body.cantidad_total == null) {
+    if (!req.body.nombre_partido || !req.body.nombre_localidad || req.body.cantidad_total == null) {
         res.status(400).send({ message: "Faltan datos obligatorios!" });
         return;
     }
 
     const inventario = {
-            id_partido: req.body.id_partido,
-            id_localidad: req.body.id_localidad,
-            cantidad_total: req.body.cantidad_total,
-            cantidad_disponible: req.body.cantidad_disponible
-          };
+        nombre_partido: req.body.nombre_partido,
+        nombre_localidad: req.body.nombre_localidad,
+        cantidad_total: req.body.cantidad_total,
+        cantidad_disponible: req.body.cantidad_disponible || req.body.cantidad_total,
+        boletos_vendidos: req.body.boletos_vendidos || 0
+    };
 
     InventarioBoletos.create(inventario)
         .then(data => res.send(data))
@@ -23,8 +24,8 @@ exports.create = (req, res) => {
 
 // Obtener todos los registros de inventario
 exports.findAll = (req, res) => {
-    const id_partido = req.query.id_partido;
-    const condition = id_partido ? { id_partido } : null;
+    const nombre_partido = req.query.nombre_partido;
+    const condition = nombre_partido ? { nombre_partido } : null;
 
     InventarioBoletos.findAll({ where: condition })
         .then(data => res.send(data))

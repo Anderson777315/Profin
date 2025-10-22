@@ -4,22 +4,21 @@ const Op = db.Sequelize.Op;
 
 // Crear un nuevo partido
 exports.create = (req, res) => {
-    if (!req.body.equipo_local || !req.body.equipo_visitante || !req.body.fecha_partido || !req.body.estadio) {
+    if (!req.body.equipo || !req.body.tipo_equipo || !req.body.fecha_partido || !req.body.estadio) {
         res.status(400).send({ message: "Faltan datos obligatorios!" });
         return;
     }
 
     const partido = {
-       equipo_local: req.body.equipo_local,
-            equipo_visitante: req.body.equipo_visitante,
-            fecha_partido: req.body.fecha_partido,
-            estadio: req.body.estadio,
-            torneo: req.body.torneo || null,
-            temporada: req.body.temporada || null,
-            arbitro_principal: req.body.arbitro_principal || null,
-            marcador_local: req.body.marcador_local || 0,
-            marcador_visitante: req.body.marcador_visitante || 0,
-            estado: req.body.estado || "programado"
+        equipo: req.body.equipo,
+        tipo_equipo: req.body.tipo_equipo,
+        fecha_partido: req.body.fecha_partido,
+        estadio: req.body.estadio,
+        torneo: req.body.torneo || null,
+        temporada: req.body.temporada || null,
+        arbitro_principal: req.body.arbitro_principal || null,
+        marcador: req.body.marcador || 0,
+        estado: req.body.estado || "programado"
     };
 
     Partido.create(partido)
@@ -29,8 +28,8 @@ exports.create = (req, res) => {
 
 // Obtener todos los partidos
 exports.findAll = (req, res) => {
-    const equipo = req.query.equipo_local;
-    const condition = equipo ? { equipo_local: { [Op.iLike]: `%${equipo}%` } } : null;
+    const equipo = req.query.equipo;
+    const condition = equipo ? { equipo: { [Op.iLike]: `%${equipo}%` } } : null;
 
     Partido.findAll({ where: condition })
         .then(data => res.send(data))
@@ -55,7 +54,8 @@ exports.update = (req, res) => {
             res.send({ message: `No se pudo actualizar el partido con id=${id_partido}.` }))
         .catch(err => res.status(500).send({ message: "Error al actualizar partido con id=" + id_partido }));
 };
-// Buscar partidos por nombre de equipo (local o visitante)
+
+// Buscar partidos por nombre de equipo
 exports.findByEquipo = (req, res) => {
     const equipo = req.params.equipo;
 
@@ -65,10 +65,7 @@ exports.findByEquipo = (req, res) => {
 
     Partido.findAll({
         where: {
-            [Op.or]: [
-                { equipo_local: { [Op.iLike]: `%${equipo}%` } },
-                { equipo_visitante: { [Op.iLike]: `%${equipo}%` } }
-            ]
+            equipo: { [Op.iLike]: `%${equipo}%` }
         }
     })
     .then(data => res.send(data))
