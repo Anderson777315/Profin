@@ -9,7 +9,7 @@ exports.create = async (req, res) => {
     }
 
     try {
-        // ✅ VERIFICAR SI YA EXISTE partido con mismo equipo, fecha y estadio
+        // VERIFICAR SI YA EXISTE partido con mismo equipo, fecha y estadio
         const partidoExistente = await Partido.findOne({
             where: {
                 equipo: req.body.equipo,

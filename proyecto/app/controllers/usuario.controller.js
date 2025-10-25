@@ -10,7 +10,7 @@ exports.create = async (req, res) => {
     }
 
     try {
-        // ✅ VERIFICAR SI YA EXISTE nombre_usuario
+        //  VERIFICAR SI YA EXISTE nombre_usuario
         const usuarioExistente = await Usuario.findOne({
             where: { nombre_usuario: req.body.nombre_usuario }
         });
@@ -21,7 +21,7 @@ exports.create = async (req, res) => {
             });
         }
 
-        // ✅ VERIFICAR SI YA EXISTE correo (si se proporciona)
+        // VERIFICAR SI YA EXISTE correo (si se proporciona)
         if (req.body.correo) {
             const correoExistente = await Usuario.findOne({
                 where: { correo: req.body.correo }
@@ -139,7 +139,7 @@ exports.findByUsername = async (req, res) => {
     }
 };
 
-// ✅ Login de usuario (con validación de estado activo/inactivo)
+// Login de usuario (con validación de estado activo/inactivo)
 exports.login = async (req, res) => {
     const { nombre_usuario, contrasena } = req.body;
 
@@ -168,5 +168,44 @@ exports.login = async (req, res) => {
         });
     } catch (error) {
         res.status(500).send({ message: error.message || "Error al iniciar sesión" });
+    }
+};
+// Buscar usuarios por rol
+exports.findByRol = async (req, res) => {
+    try {
+        const rol = req.params.rol;
+        if (!rol) {
+            return res.status(400).send({ message: "Falta el parámetro 'rol' para la búsqueda" });
+        }
+
+        const usuarios = await Usuario.findAll({
+            where: {
+                rol: { [Op.iLike]: `%${rol}%` }
+            }
+        });
+
+        res.send(usuarios);
+    } catch (err) {
+        res.status(500).send({ message: err.message || "Error al buscar usuarios por rol." });
+    }
+};
+
+// Buscar usuarios por estado
+exports.findByEstado = async (req, res) => {
+    try {
+        const estado = req.params.estado;
+        if (!estado) {
+            return res.status(400).send({ message: "Falta el parámetro 'estado' para la búsqueda" });
+        }
+
+        const usuarios = await Usuario.findAll({
+            where: {
+                estado: { [Op.iLike]: `%${estado}%` }
+            }
+        });
+
+        res.send(usuarios);
+    } catch (err) {
+        res.status(500).send({ message: err.message || "Error al buscar usuarios por estado." });
     }
 };

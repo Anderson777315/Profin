@@ -15,13 +15,21 @@ module.exports = app => {
   // Actualizar usuario por ID
   router.put("/:id_usuario", usuarios.update);
 
-      // Buscar usuario por nombre completo
-      router.get("/buscar1/:nombre_completo", usuarios.findByName);
-        // 🔍 Buscar usuario por nombre_usuario
+  // Buscar usuario por nombre completo
+  router.get("/buscar1/:nombre_completo", usuarios.findByName);
+  
+  // Buscar usuario por nombre_usuario
   router.get("/buscar2/:nombre_usuario", usuarios.findByUsername);
+
+  // 🔍 Buscar usuarios por rol
+  router.get("/rol/:rol", usuarios.findByRol);
+
+  // 🔍 Buscar usuarios por estado
+  router.get("/estado/:estado", usuarios.findByEstado);
+
   // Login de usuario
-router.post("/login", usuarios.login);
+  router.post("/login", usuarios.login);
 
   app.use('/api/usuarios', router);
-
 };
+
