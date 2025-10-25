@@ -21,10 +21,10 @@ module.exports = app => {
   // Buscar usuario por nombre_usuario
   router.get("/buscar2/:nombre_usuario", usuarios.findByUsername);
 
-  // 🔍 Buscar usuarios por rol
+  // Buscar usuarios por rol
   router.get("/rol/:rol", usuarios.findByRol);
 
-  // 🔍 Buscar usuarios por estado
+  // Buscar usuarios por estado
   router.get("/estado/:estado", usuarios.findByEstado);
 
   // Login de usuario
