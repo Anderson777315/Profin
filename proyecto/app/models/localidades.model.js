@@ -22,7 +22,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING(255)
         },
         estado: {
-            type: Sequelize.ENUM("activo", "inactivo"),
+            type: Sequelize.ENUM("Disponible", "Cupo lleno"),
             defaultValue: "activo"
         }
     });

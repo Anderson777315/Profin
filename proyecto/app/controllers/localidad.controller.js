@@ -25,7 +25,7 @@ exports.create = async (req, res) => {
             precio: req.body.precio,
             capacidad_maxima: req.body.capacidad_maxima,
             descripcion: req.body.descripcion || null,
-            estado: req.body.estado || "activo"
+            estado: req.body.estado || "Disponible"
         };
 
         const data = await Localidad.create(localidad);
