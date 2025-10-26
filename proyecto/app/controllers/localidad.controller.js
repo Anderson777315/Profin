@@ -70,13 +70,6 @@ exports.update = (req, res) => {
         .catch(err => res.status(500).send({ message: err.message || "Error al actualizar la localidad." }));
 };
 
-// Obtener todas las localidades activas
-exports.findAllActive = (req, res) => {
-    Localidad.findAll({ where: { estado: "Disponible" } })
-        .then(data => res.send(data))
-        .catch(err => res.status(500).send({ message: err.message || "Error al obtener las localidades activas." }));
-};
-
 // Buscar localidad por nombre
 exports.findByName = (req, res) => {
     const nombre = req.params.nombre;
@@ -90,4 +83,16 @@ exports.findByName = (req, res) => {
     })
     .then(data => res.send(data))
     .catch(err => res.status(500).send({ message: err.message || "Error al buscar localidad por nombre" }));
+};
+// Obtener todas las localidades activas
+exports.findAllActive = (req, res) => {
+    Localidad.findAll({ 
+        where: { 
+            estado: {
+                [Op.or]: ["Disponible", "disponible", "Activo", "activo", "ACTIVO", "DISPONIBLE"]
+            }
+        } 
+    })
+    .then(data => res.send(data))
+    .catch(err => res.status(500).send({ message: err.message || "Error al obtener las localidades activas." }));
 };
