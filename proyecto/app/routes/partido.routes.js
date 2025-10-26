@@ -16,6 +16,7 @@ module.exports = app => {
 
     // Actualizar partido
     router.put("/:id_partido", partidos.update);
-
+router.get("/activos/ventas", partidos.findActivos);        // Para partidos activos
+router.get("/debug/info", partidos.debugPartidos);  
     app.use('/api/partidos', router);
 };

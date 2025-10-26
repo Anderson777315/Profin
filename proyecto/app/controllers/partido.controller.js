@@ -89,3 +89,53 @@ exports.findByEquipo = (req, res) => {
     .then(data => res.send(data))
     .catch(err => res.status(500).send({ message: err.message || "Error al buscar partidos" }));
 };
+// Obtener partidos activos para ventas
+exports.findActivos = (req, res) => {
+    Partido.findAll({
+        where: {
+            estado: {
+                [Op.in]: ['programado', 'activo']
+            }
+        }
+    })
+    .then(data => {
+        // Asegurar que las fechas se envíen en formato ISO
+        const partidosFormateados = data.map(partido => {
+            const partidoData = partido.get({ plain: true });
+            // Convertir fecha a ISO string si existe
+            if (partidoData.fecha_partido) {
+                partidoData.fecha_partido = partidoData.fecha_partido.toISOString();
+            }
+            return partidoData;
+        });
+        res.send(partidosFormateados);
+    })
+    .catch(err => res.status(500).send({ 
+        message: err.message || "Error al obtener partidos activos." 
+    }));
+};
+
+// Endpoint para debugging de partidos
+exports.debugPartidos = (req, res) => {
+    Partido.findAll()
+    .then(data => {
+        const debugInfo = data.map(partido => {
+            const partidoData = partido.get({ plain: true });
+            return {
+                id_partido: partidoData.id_partido,
+                equipo: partidoData.equipo,
+                tipo_equipo: partidoData.tipo_equipo,
+                fecha_partido_raw: partidoData.fecha_partido,
+                fecha_partido_type: typeof partidoData.fecha_partido,
+                fecha_partido_iso: partidoData.fecha_partido ? partidoData.fecha_partido.toISOString() : null,
+                estadio: partidoData.estadio,
+                estado: partidoData.estado,
+                torneo: partidoData.torneo
+            };
+        });
+        res.send(debugInfo);
+    })
+    .catch(err => res.status(500).send({ 
+        message: err.message || "Error en debug." 
+    }));
+};
