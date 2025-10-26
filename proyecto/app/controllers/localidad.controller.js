@@ -72,7 +72,7 @@ exports.update = (req, res) => {
 
 // Obtener todas las localidades activas
 exports.findAllActive = (req, res) => {
-    Localidad.findAll({ where: { estado: true } })
+    Localidad.findAll({ where: { estado: "Disponible" } })
         .then(data => res.send(data))
         .catch(err => res.status(500).send({ message: err.message || "Error al obtener las localidades activas." }));
 };
