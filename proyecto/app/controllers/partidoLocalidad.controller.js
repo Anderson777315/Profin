@@ -19,6 +19,7 @@ exports.obtenerLocalidadesPorPartido = async (req, res) => {
             where: { id_partido: idPartido },
             include: [{
                 model: Localidad,
+                as: 'localidad',
                 attributes: ['id_localidad', 'nombre', 'descripcion', 'estado']
             }]
         });
