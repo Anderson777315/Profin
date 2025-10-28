@@ -19,7 +19,7 @@ exports.obtenerLocalidadesPorPartido = async (req, res) => {
             where: { id_partido: idPartido },
             include: [{
                 model: Localidad,
-                as: 'localidad',
+                as: 'localidade',  
                 attributes: ['id_localidad', 'nombre', 'descripcion', 'estado']
             }]
         });
@@ -29,9 +29,9 @@ exports.obtenerLocalidadesPorPartido = async (req, res) => {
             id_partido_localidad: pl.id_partido_localidad,
             id_localidad: pl.id_localidad,
             id_partido: pl.id_partido,
-            nombre: pl.localidad ? pl.localidad.nombre : null,
-            descripcion: pl.localidad ? pl.localidad.descripcion : null,
-            estado: pl.localidad ? pl.localidad.estado : null,
+            nombre: pl.localidade ? pl.localidade.nombre : null,  // ← CAMBIAR aquí también
+            descripcion: pl.localidade ? pl.localidade.descripcion : null,  // ← Y aquí
+            estado: pl.localidade ? pl.localidade.estado : null,  // ← Y aquí
             precio_partido: pl.precio,
             capacidad_total: pl.capacidad_total,
             capacidad_disponible: pl.capacidad_disponible,
