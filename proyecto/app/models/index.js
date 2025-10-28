@@ -1,5 +1,7 @@
 const dbConfig = require("../config/db.config.js");
 const Sequelize = require("sequelize");
+
+// Conexión con la base de datos Neon
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
@@ -20,39 +22,33 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
 // Creamos el objeto db
 const db = {};
 
-// Guardamos Sequelize y la instancia
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-// Importamos los modelos
+// Importar modelos
 db.usuario = require("./usuario.model.js")(sequelize, Sequelize);
 db.partido = require("./partido.model.js")(sequelize, Sequelize);
 db.localidad = require("./localidades.model.js")(sequelize, Sequelize);
 db.inventarioBoletos = require("./inventario.model.js")(sequelize, Sequelize);
 db.venta = require("./venta.model.js")(sequelize, Sequelize);
 db.detalleVenta = require("./detalleVenta.model.js")(sequelize, Sequelize);
-// En tu archivo db.js, agrega:
 db.partido_localidad = require("./partidolocalidad.model.js")(sequelize, Sequelize);
+
+
+// Usuario /Ventas
 db.usuario.hasMany(db.venta, { foreignKey: 'id_vendedor' });
 db.venta.belongsTo(db.usuario, { foreignKey: 'id_vendedor' });
-// Asociación muchos a muchos entre Partido y Localidad
-db.partido.belongsToMany(db.localidad, {
-    through: "partido_localidad",
-    foreignKey: "id_partido",
-    otherKey: "id_localidad"
-});
 
-db.localidad.belongsToMany(db.partido, {
-    through: "partido_localidad",
-    foreignKey: "id_localidad",
-    otherKey: "id_partido"
-});
-
-// Ventas y DetalleVentas
+// Venta /DetalleVenta
 db.venta.hasMany(db.detalleVenta, { foreignKey: 'id_venta' });
 db.detalleVenta.belongsTo(db.venta, { foreignKey: 'id_venta' });
-db.usuario.hasMany(db.venta, { foreignKey: 'id_vendedor' });
-db.venta.belongsTo(db.usuario, { foreignKey: 'id_vendedor' });
-db.venta.hasMany(db.detalleVenta, { foreignKey: 'id_venta' });
-db.detalleVenta.belongsTo(db.venta, { foreignKey: 'id_venta' });
+
+// Partido ↔/Localidad (a través de PartidoLocalidad)
+db.partido.hasMany(db.partido_localidad, { foreignKey: 'id_partido' });
+db.localidad.hasMany(db.partido_localidad, { foreignKey: 'id_localidad' });
+
+db.partido_localidad.belongsTo(db.partido, { foreignKey: 'id_partido' });
+db.partido_localidad.belongsTo(db.localidad, { foreignKey: 'id_localidad' });
+
+
 module.exports = db;

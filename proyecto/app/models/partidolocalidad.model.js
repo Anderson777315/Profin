@@ -1,40 +1,30 @@
 module.exports = (sequelize, Sequelize) => {
-    const PartidoLocalidad = sequelize.define("partido_localidad", {
-        id_partidolocalidad: {
+    const PartidoLocalidad = sequelize.define("partido_localidades", {
+        id_partido_localidad: {
             type: Sequelize.INTEGER,
             autoIncrement: true,
             primaryKey: true
         },
         id_partido: {
             type: Sequelize.INTEGER,
-            allowNull: false,
-            references: { model: "partidos", key: "id_partido" }
+            allowNull: false
         },
         id_localidad: {
             type: Sequelize.INTEGER,
-            allowNull: false,
-            references: { model: "localidades", key: "id_localidad" }
+            allowNull: false
         },
         precio: {
-            type: Sequelize.DECIMAL(10,2),
-            allowNull: false,
-            defaultValue: 0.00
+            type: Sequelize.DECIMAL(10, 2),
+            allowNull: false
         },
         capacidad_total: {
             type: Sequelize.INTEGER,
-            allowNull: false,
-            defaultValue: 0
+            allowNull: false
         },
-        boletos_vendidos: {
+        capacidad_disponible: {
             type: Sequelize.INTEGER,
-            allowNull: false,
-            defaultValue: 0
+            allowNull: false
         }
-    }, {
-        tableName: 'partido_localidad',
-        indexes: [
-            { unique: true, fields: ['id_partido', 'id_localidad'] } // Evita duplicados para mismo partido y localidad
-        ]
     });
 
     return PartidoLocalidad;

@@ -2,14 +2,14 @@ module.exports = app => {
     const partidoLocalidad = require("../controllers/partidoLocalidad.controller.js");
     const router = require("express").Router();
 
-    // GET /api/partidos/:idPartido/localidades
-    router.get("/partidos/:idPartido/localidades", partidoLocalidad.obtenerLocalidadesPorPartido);
+    // Obtener las localidades de un partido
+    router.get("/partido/:id/localidades", partidoLocalidad.obtenerLocalidadesPorPartido);
 
-    // POST /api/partidos/localidades
-    router.post("/partidos/localidades", partidoLocalidad.asignarLocalidad);
+    // Asignar una localidad a un partido
+    router.post("/partido/localidad", partidoLocalidad.asignarLocalidad);
 
-    // DELETE /api/partidos/:idPartido/localidades/:idLocalidad  
-    router.delete("/partidos/:idPartido/localidades/:idLocalidad", partidoLocalidad.eliminarLocalidad);
+    // Eliminar una localidad de un partido
+    router.delete("/partido/:idPartido/localidad/:idLocalidad", partidoLocalidad.eliminarLocalidad);
 
     app.use('/api', router);
 };
