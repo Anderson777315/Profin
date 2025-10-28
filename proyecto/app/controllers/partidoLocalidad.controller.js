@@ -3,9 +3,9 @@ const PartidoLocalidad = db.partido_localidad;
 const Localidad = db.localidad;
 const Partido = db.partido;
 
-//  Obtener localidades por partido
+// Obtener localidades por partido
 exports.obtenerLocalidadesPorPartido = async (req, res) => {
-    const idPartido = req.params.idPartido;
+    const idPartido = req.params.id;  // Cambiar de req.params.idPartido a req.params.id
 
     try {
         // Verificar si el partido existe
@@ -42,7 +42,7 @@ exports.obtenerLocalidadesPorPartido = async (req, res) => {
             count: resultado.length
         });
     } catch (error) {
-        console.error("❌ Error en obtenerLocalidadesPorPartido:", error);
+        console.error("Error en obtenerLocalidadesPorPartido:", error);
         res.status(500).json({
             success: false,
             message: "Error al obtener localidades del partido",
@@ -50,7 +50,6 @@ exports.obtenerLocalidadesPorPartido = async (req, res) => {
         });
     }
 };
-
 
 // Asignar una localidad a un partido
 exports.asignarLocalidad = async (req, res) => {
@@ -83,7 +82,7 @@ exports.asignarLocalidad = async (req, res) => {
             id_localidad,
             precio: precio || 0.00,
             capacidad_total: capacidad_total || 0,
-            capacidad_disponible: capacidad_total || 0, // Al inicio toda la capacidad está disponible
+            capacidad_disponible: capacidad_total || 0,
             boletos_vendidos: 0
         });
 
@@ -93,7 +92,7 @@ exports.asignarLocalidad = async (req, res) => {
             data: partidoLocalidad
         });
     } catch (error) {
-        console.error("❌ Error en asignarLocalidad:", error);
+        console.error("Error en asignarLocalidad:", error);
         res.status(500).json({
             success: false,
             message: "Error al asignar localidad al partido",
@@ -102,8 +101,7 @@ exports.asignarLocalidad = async (req, res) => {
     }
 };
 
-// 🔹 Eliminar localidad de un partido
-
+// Eliminar localidad de un partido
 exports.eliminarLocalidad = async (req, res) => {
     const { idPartido, idLocalidad } = req.params;
 
@@ -124,7 +122,7 @@ exports.eliminarLocalidad = async (req, res) => {
             message: "Localidad eliminada del partido exitosamente"
         });
     } catch (error) {
-        console.error("❌ Error en eliminarLocalidad:", error);
+        console.error("Error en eliminarLocalidad:", error);
         res.status(500).json({
             success: false,
             message: "Error al eliminar localidad del partido",
