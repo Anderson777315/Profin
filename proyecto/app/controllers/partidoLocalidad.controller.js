@@ -5,7 +5,7 @@ const Partido = db.partido;
 
 // Obtener localidades por partido
 exports.obtenerLocalidadesPorPartido = async (req, res) => {
-    const idPartido = req.params.id;  // Cambiar de req.params.idPartido a req.params.id
+    const idPartido = req.params.id;
 
     try {
         // Verificar si el partido existe
@@ -26,10 +26,11 @@ exports.obtenerLocalidadesPorPartido = async (req, res) => {
         // Mapear el resultado para incluir datos combinados
         const resultado = partidoLocalidades.map(pl => ({
             id_partido_localidad: pl.id_partido_localidad,
-            id_localidad: pl.localidad?.id_localidad,
-            nombre: pl.localidad?.nombre,
-            descripcion: pl.localidad?.descripcion,
-            estado: pl.localidad?.estado,
+            id_localidad: pl.id_localidad,
+            id_partido: pl.id_partido,
+            nombre: pl.localidad ? pl.localidad.nombre : null,
+            descripcion: pl.localidad ? pl.localidad.descripcion : null,
+            estado: pl.localidad ? pl.localidad.estado : null,
             precio_partido: pl.precio,
             capacidad_total: pl.capacidad_total,
             capacidad_disponible: pl.capacidad_disponible,
