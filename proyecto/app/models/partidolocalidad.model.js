@@ -7,6 +7,7 @@ module.exports = (sequelize, Sequelize) => {
         },
         id_partido: {
             type: Sequelize.INTEGER,
+            allowNull: false,
             references: {
                 model: "partidos",
                 key: "id_partido"
@@ -14,18 +15,30 @@ module.exports = (sequelize, Sequelize) => {
         },
         id_localidad: {
             type: Sequelize.INTEGER,
+            allowNull: false,
             references: {
                 model: "localidades",
                 key: "id_localidad"
             }
         },
-        // Opcional: capacidad o precio específico por partido
         precio: {
-            type: Sequelize.DECIMAL(10,2)
+            type: Sequelize.DECIMAL(10,2),
+            allowNull: false,
+            defaultValue: 0.00
         },
         capacidad_disponible: {
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            defaultValue: 0
         }
+    }, {
+        tableName: 'partido_localidad',
+        indexes: [
+            {
+                unique: true,
+                fields: ['id_partido', 'id_localidad']
+            }
+        ]
     });
 
     return PartidoLocalidad;

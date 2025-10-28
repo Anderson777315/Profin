@@ -31,7 +31,8 @@ db.localidad = require("./localidades.model.js")(sequelize, Sequelize);
 db.inventarioBoletos = require("./inventario.model.js")(sequelize, Sequelize);
 db.venta = require("./venta.model.js")(sequelize, Sequelize);
 db.detalleVenta = require("./detalleVenta.model.js")(sequelize, Sequelize);
-
+// En tu archivo db.js, agrega:
+db.partido_localidad = require("./partidolocalidad.model.js")(sequelize, Sequelize);
 db.usuario.hasMany(db.venta, { foreignKey: 'id_vendedor' });
 db.venta.belongsTo(db.usuario, { foreignKey: 'id_vendedor' });
 // Asociación muchos a muchos entre Partido y Localidad
