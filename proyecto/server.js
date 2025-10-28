@@ -34,7 +34,7 @@ require("./app/routes/localidad.routes")(app);
 require("./app/routes/inventario.routes")(app);
 require("./app/routes/venta.routes")(app);
 require("./app/routes/detalleVenta.routes")(app);
-
+require("./app/routes/partidoLocalidad.routes")(app);
 // Puerto y inicio del servidor
 const PORT = process.env.PORT || 1889;
 app.listen(PORT, () => {
