@@ -4,36 +4,50 @@ const Op = db.Sequelize.Op;
 
 // Crear un nuevo partido
 exports.create = async (req, res) => {
-    if (!req.body.equipo || !req.body.tipo_equipo || !req.body.fecha_partido || !req.body.estadio) {
-        return res.status(400).send({ message: "Faltan datos obligatorios!" });
+    const {
+        equipo_local,
+        equipo_visitante,
+        fecha_partido,
+        estadio,
+        torneo,
+        temporada,
+        arbitro_principal,
+        estado
+    } = req.body;
+
+    if (!equipo_local || !equipo_visitante || !fecha_partido || !estadio) {
+        return res.status(400).send({ message: "Faltan datos obligatorios (equipo_local, equipo_visitante, fecha_partido, estadio)." });
+    }
+
+    if (equipo_local.trim().toLowerCase() === equipo_visitante.trim().toLowerCase()) {
+        return res.status(400).send({ message: "equipo_local y equipo_visitante no pueden ser el mismo." });
     }
 
     try {
-        // VERIFICAR SI YA EXISTE partido con mismo equipo, fecha y estadio
         const partidoExistente = await Partido.findOne({
             where: {
-                equipo: req.body.equipo,
-                fecha_partido: req.body.fecha_partido,
-                estadio: req.body.estadio
+                equipo_local,
+                equipo_visitante,
+                fecha_partido,
+                estadio
             }
         });
 
         if (partidoExistente) {
-            return res.status(400).send({ 
-                message: `Ya existe un partido para: ${req.body.equipo} en ${req.body.estadio} en la fecha ${req.body.fecha_partido}` 
+            return res.status(400).send({
+                message: `Ya existe un partido ${equipo_local} vs ${equipo_visitante} en ${estadio} para la fecha ${fecha_partido}.`
             });
         }
 
         const partido = {
-            equipo: req.body.equipo,
-            tipo_equipo: req.body.tipo_equipo,
-            fecha_partido: req.body.fecha_partido,
-            estadio: req.body.estadio,
-            torneo: req.body.torneo || null,
-            temporada: req.body.temporada || null,
-            arbitro_principal: req.body.arbitro_principal || null,
-            marcador: req.body.marcador || 0,
-            estado: req.body.estado || "programado"
+            equipo_local,
+            equipo_visitante,
+            fecha_partido,
+            estadio,
+            torneo: torneo || null,
+            temporada: temporada || null,
+            arbitro_principal: arbitro_principal || null,
+            estado: estado || "programado"
         };
 
         const data = await Partido.create(partido);
@@ -47,7 +61,16 @@ exports.create = async (req, res) => {
 // Obtener todos los partidos
 exports.findAll = (req, res) => {
     const equipo = req.query.equipo;
-    const condition = equipo ? { equipo: { [Op.iLike]: `%${equipo}%` } } : null;
+
+    let condition = null;
+    if (equipo) {
+        condition = {
+            [Op.or]: [
+                { equipo_local: { [Op.iLike]: `%${equipo}%` } },
+                { equipo_visitante: { [Op.iLike]: `%${equipo}%` } }
+            ]
+        };
+    }
 
     Partido.findAll({ where: condition })
         .then(data => res.send(data))
@@ -63,14 +86,23 @@ exports.findOne = (req, res) => {
         .catch(err => res.status(500).send({ message: "Error al obtener partido con id=" + id_partido }));
 };
 
-// Actualizar un partido por ID
-exports.update = (req, res) => {
+// Actualizar un partido
+exports.update = async (req, res) => {
     const id_partido = req.params.id_partido;
 
-    Partido.update(req.body, { where: { id_partido } })
-        .then(num => num == 1 ? res.send({ message: "Partido actualizado correctamente." }) :
-            res.send({ message: `No se pudo actualizar el partido con id=${id_partido}.` }))
-        .catch(err => res.status(500).send({ message: "Error al actualizar partido con id=" + id_partido }));
+    if (req.body.equipo_local && req.body.equipo_visitante) {
+        if (req.body.equipo_local.trim().toLowerCase() === req.body.equipo_visitante.trim().toLowerCase()) {
+            return res.status(400).send({ message: "equipo_local y equipo_visitante no pueden ser el mismo." });
+        }
+    }
+
+    try {
+        const [num] = await Partido.update(req.body, { where: { id_partido } });
+        if (num === 1) return res.send({ message: "Partido actualizado correctamente." });
+        return res.send({ message: `No se pudo actualizar el partido con id=${id_partido}.` });
+    } catch (err) {
+        res.status(500).send({ message: "Error al actualizar partido con id=" + id_partido });
+    }
 };
 
 // Buscar partidos por nombre de equipo
@@ -83,13 +115,17 @@ exports.findByEquipo = (req, res) => {
 
     Partido.findAll({
         where: {
-            equipo: { [Op.iLike]: `%${equipo}%` }
+            [Op.or]: [
+                { equipo_local: { [Op.iLike]: `%${equipo}%` } },
+                { equipo_visitante: { [Op.iLike]: `%${equipo}%` } }
+            ]
         }
     })
     .then(data => res.send(data))
     .catch(err => res.status(500).send({ message: err.message || "Error al buscar partidos" }));
 };
-// Obtener partidos activos para ventas
+
+// Obtener partidos activos
 exports.findActivos = (req, res) => {
     Partido.findAll({
         where: {
@@ -99,10 +135,8 @@ exports.findActivos = (req, res) => {
         }
     })
     .then(data => {
-        // Asegurar que las fechas se envíen en formato ISO
         const partidosFormateados = data.map(partido => {
             const partidoData = partido.get({ plain: true });
-            // Convertir fecha a ISO string si existe
             if (partidoData.fecha_partido) {
                 partidoData.fecha_partido = partidoData.fecha_partido.toISOString();
             }
@@ -110,23 +144,22 @@ exports.findActivos = (req, res) => {
         });
         res.send(partidosFormateados);
     })
-    .catch(err => res.status(500).send({ 
-        message: err.message || "Error al obtener partidos activos." 
+    .catch(err => res.status(500).send({
+        message: err.message || "Error al obtener partidos activos."
     }));
 };
 
-// Endpoint para debugging de partidos
+// Debug
 exports.debugPartidos = (req, res) => {
     Partido.findAll()
     .then(data => {
-        const debugInfo = data.map(partido => {
-            const partidoData = partido.get({ plain: true });
+        const debugInfo = data.map(p => {
+            const partidoData = p.get({ plain: true });
             return {
                 id_partido: partidoData.id_partido,
-                equipo: partidoData.equipo,
-                tipo_equipo: partidoData.tipo_equipo,
+                equipo_local: partidoData.equipo_local,
+                equipo_visitante: partidoData.equipo_visitante,
                 fecha_partido_raw: partidoData.fecha_partido,
-                fecha_partido_type: typeof partidoData.fecha_partido,
                 fecha_partido_iso: partidoData.fecha_partido ? partidoData.fecha_partido.toISOString() : null,
                 estadio: partidoData.estadio,
                 estado: partidoData.estado,

@@ -5,12 +5,12 @@ module.exports = (sequelize, Sequelize) => {
             autoIncrement: true,
             primaryKey: true
         },
-        equipo: {
+        equipo_local: {
             type: Sequelize.STRING(100),
             allowNull: false
         },
-        tipo_equipo: {
-            type: Sequelize.ENUM("local", "visitante"),
+        equipo_visitante: {
+            type: Sequelize.STRING(100),
             allowNull: false
         },
         fecha_partido: {
@@ -29,10 +29,6 @@ module.exports = (sequelize, Sequelize) => {
         },
         arbitro_principal: {
             type: Sequelize.STRING(100)
-        },
-        marcador: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0
         },
         estado: {
             type: Sequelize.ENUM("programado", "activo", "finalizado"),
