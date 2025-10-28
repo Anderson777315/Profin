@@ -34,6 +34,18 @@ db.detalleVenta = require("./detalleVenta.model.js")(sequelize, Sequelize);
 
 db.usuario.hasMany(db.venta, { foreignKey: 'id_vendedor' });
 db.venta.belongsTo(db.usuario, { foreignKey: 'id_vendedor' });
+// Asociación muchos a muchos entre Partido y Localidad
+db.partido.belongsToMany(db.localidad, {
+    through: "partido_localidad",
+    foreignKey: "id_partido",
+    otherKey: "id_localidad"
+});
+
+db.localidad.belongsToMany(db.partido, {
+    through: "partido_localidad",
+    foreignKey: "id_localidad",
+    otherKey: "id_partido"
+});
 
 // Ventas y DetalleVentas
 db.venta.hasMany(db.detalleVenta, { foreignKey: 'id_venta' });
