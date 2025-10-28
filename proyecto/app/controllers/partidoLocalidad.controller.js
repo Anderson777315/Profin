@@ -1,6 +1,8 @@
 const db = require("../models");
 const PartidoLocalidad = db.partido_localidad;
 const Localidad = db.localidad;
+const Partido = db.partido;
+
 // Obtener localidades por partido
 exports.obtenerLocalidadesPorPartido = async (req, res) => {
     const idPartido = req.params.idPartido;

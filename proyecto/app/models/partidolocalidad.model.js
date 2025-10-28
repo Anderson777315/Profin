@@ -1,9 +1,10 @@
 module.exports = (sequelize, Sequelize) => {
-    const PartidoLocalidad = sequelize.define("partido_localidad", {
-        id: {
-            type: Sequelize.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
+                        const PartidoLocalidad = sequelize.define("partido_localidad", {
+                       id_partidolocalidad: {
+              type: Sequelize.INTEGER,
+                      autoIncrement: true,
+                 primaryKey: true,
+                 field: 'id_partidolocalidad'
         },
         id_partido: {
             type: Sequelize.INTEGER,
