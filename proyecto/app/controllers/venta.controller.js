@@ -1,5 +1,6 @@
 const db = require("../models");
 const Venta = db.venta;
+const DetalleVenta = db.detalleVenta;
 const Op = db.Sequelize.Op;
 
 // Funcion para generar numero de factura autoincrementable
@@ -8,7 +9,7 @@ const generarNumeroFactura = async () => {
         const ultimaVenta = await Venta.findOne({
             order: [['id_venta', 'DESC']]
         });
-        
+
         let siguienteNumero = 1;
         if (ultimaVenta && ultimaVenta.numero_factura) {
             const match = ultimaVenta.numero_factura.match(/FACT-(\d+)/);
@@ -16,7 +17,7 @@ const generarNumeroFactura = async () => {
                 siguienteNumero = parseInt(match[1]) + 1;
             }
         }
-        
+
         return `FACT-${String(siguienteNumero).padStart(6, '0')}`;
     } catch (error) {
         return `FACT-${Date.now()}`;
@@ -26,17 +27,17 @@ const generarNumeroFactura = async () => {
 // Crear una nueva venta
 exports.create = async (req, res) => {
     try {
-        // Validar campos obligatorios (numero_factura removido)
+        // Validar campos obligatorios
         if (!req.body.id_vendedor || !req.body.cliente_nombre || !req.body.cliente_dpi || !req.body.partido || 
             req.body.cantidad == null || !req.body.localidad || req.body.precio_unitario == null || 
             req.body.total_venta == null || !req.body.metodo_pago) {
             return res.status(400).send({ message: "Faltan datos obligatorios!" });
         }
 
-        // Generar numero de factura automaticamente
+        // Generar numero de factura automáticamente
         const numeroFactura = await generarNumeroFactura();
 
-        // 1. Primero verificar el inventario
+        // 1. Verificar inventario
         const inventario = await db.inventarioBoletos.findOne({
             where: {
                 nombre_partido: req.body.partido,
@@ -48,7 +49,7 @@ exports.create = async (req, res) => {
             return res.status(400).send({ message: "No se encontró inventario para este partido y localidad" });
         }
 
-        // 2. Verificar si hay suficientes boletos disponibles
+        // 2. Verificar disponibilidad
         if (inventario.cantidad_disponible < req.body.cantidad) {
             return res.status(400).send({ 
                 message: `No hay suficientes boletos disponibles. Solo quedan: ${inventario.cantidad_disponible}` 
@@ -56,7 +57,7 @@ exports.create = async (req, res) => {
         }
 
         // 3. Crear la venta
-        const venta = {
+        const ventaData = {
             id_vendedor: req.body.id_vendedor,
             cliente_nombre: req.body.cliente_nombre,
             cliente_dpi: req.body.cliente_dpi,
@@ -71,9 +72,23 @@ exports.create = async (req, res) => {
             estado: req.body.estado || "pagado"
         };
 
-        const data = await Venta.create(venta);
+        const ventaCreada = await Venta.create(ventaData);
 
-        // 4. Actualizar el inventario
+        // 4. Crear detalle de venta asociado
+        const detalleData = {
+            id_venta: ventaCreada.id_venta,
+            nombre_partido: req.body.partido,
+            nombre_localidad: req.body.localidad,
+            cantidad: req.body.cantidad,
+            precio_unitario: req.body.precio_unitario,
+            subtotal: req.body.cantidad * req.body.precio_unitario,
+            descuento_aplicado: req.body.descuento_aplicado || 0,
+            impuesto: req.body.impuesto || 0
+        };
+
+        await DetalleVenta.create(detalleData);
+
+        // 5. Actualizar inventario
         await db.inventarioBoletos.update(
             {
                 cantidad_disponible: inventario.cantidad_disponible - req.body.cantidad,
@@ -87,7 +102,7 @@ exports.create = async (req, res) => {
             }
         );
 
-        res.send(data);
+        res.send(ventaCreada);
 
     } catch (err) {
         res.status(500).send({ message: err.message || "Error al crear la venta." });
