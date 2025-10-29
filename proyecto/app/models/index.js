@@ -34,27 +34,27 @@ db.venta = require("./venta.model.js")(sequelize, Sequelize);
 db.detalleVenta = require("./detalleVenta.model.js")(sequelize, Sequelize);
 db.partido_localidad = require("./partidolocalidad.model.js")(sequelize, Sequelize);
 
-//  RELACIONES 
-// Usuario / Ventas
+// Usuario ↔ Ventas
 db.usuario.hasMany(db.venta, { foreignKey: 'id_vendedor' });
 db.venta.belongsTo(db.usuario, { foreignKey: 'id_vendedor' });
 
-// Venta / DetalleVenta
+// Venta ↔ DetalleVenta
 db.venta.hasMany(db.detalleVenta, { foreignKey: 'id_venta' });
 db.detalleVenta.belongsTo(db.venta, { foreignKey: 'id_venta' });
 
-// Partido ↔ Localidad (a través de PartidoLocalidad)
+// Partido ↔ PartidoLocalidad
 db.partido.hasMany(db.partido_localidad, { foreignKey: 'id_partido' });
-db.localidad.hasMany(db.partido_localidad, { foreignKey: 'id_localidad' });
-
 db.partido_localidad.belongsTo(db.partido, { foreignKey: 'id_partido' });
-db.partido_localidad.belongsTo(db.localidad, { foreignKey: 'id_localidad' });
+
+// Localidad ↔ PartidoLocalidad (usando nombre en vez de id)
+db.localidad.hasMany(db.partido_localidad, { foreignKey: 'nombre', sourceKey: 'nombre' });
+db.partido_localidad.belongsTo(db.localidad, { foreignKey: 'nombre', targetKey: 'nombre' });
 
 // InventarioBoletos ↔ PartidoLocalidad
-db.partido_localidad.hasMany(db.inventarioBoletos, { foreignKey: 'nombre_partido', sourceKey: 'nombre_partido' });
-db.inventarioBoletos.belongsTo(db.partido_localidad, { foreignKey: 'nombre_partido', targetKey: 'nombre_partido' });
+db.partido_localidad.hasMany(db.inventarioBoletos, { foreignKey: 'nombre_localidad', sourceKey: 'nombre' });
+db.inventarioBoletos.belongsTo(db.partido_localidad, { foreignKey: 'nombre_localidad', targetKey: 'nombre' });
 
-// InventarioBoletos ↔ Venta y DetalleVenta (opcional para consultas rápidas)
+// InventarioBoletos ↔ Venta y DetalleVenta
 db.inventarioBoletos.hasMany(db.detalleVenta, { foreignKey: 'nombre_partido', sourceKey: 'nombre_partido' });
 db.detalleVenta.belongsTo(db.inventarioBoletos, { foreignKey: 'nombre_partido', targetKey: 'nombre_partido' });
 

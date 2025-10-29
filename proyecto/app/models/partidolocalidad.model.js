@@ -10,9 +10,9 @@ module.exports = (sequelize, Sequelize) => {
             allowNull: false
         },
         nombre: {
-            type: Sequelize.INTEGER,
-            allowNull: false
-        },
+                type: Sequelize.STRING(100),
+                     allowNull: false
+                },
         precio: {
             type: Sequelize.DECIMAL(10, 2),
             allowNull: false
