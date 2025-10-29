@@ -9,7 +9,7 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.INTEGER,
             allowNull: false
         },
-        id_localidad: {
+        nombre: {
             type: Sequelize.INTEGER,
             allowNull: false
         },
