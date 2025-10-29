@@ -82,7 +82,9 @@ exports.create = async (req, res) => {
             metodo_pago,
             numero_factura: numeroFactura,
             fecha_venta: new Date(),
-            estado: "pagado"
+            estado: "pagado",
+            id_inventario: inventario.id_inventario, // ✅ agregado
+            id_partido: inventario.id_partido        // ✅ agregado
         });
 
         // 5️⃣ Crear detalle de venta
