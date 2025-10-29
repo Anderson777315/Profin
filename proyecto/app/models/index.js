@@ -1,7 +1,6 @@
 const dbConfig = require("../config/db.config.js");
 const Sequelize = require("sequelize");
 
-// Conexión con la base de datos Neon
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
@@ -19,7 +18,6 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   }
 });
 
-// Creamos el objeto db
 const db = {};
 
 db.Sequelize = Sequelize;
@@ -34,7 +32,7 @@ db.inventarioBoletos = require("./inventario.model.js")(sequelize, Sequelize);
 db.venta = require("./venta.model.js")(sequelize, Sequelize);
 db.detalleVenta = require("./detalleVenta.model.js")(sequelize, Sequelize);
 
-// RELACIONES 
+// RELACIONES SIMPLIFICADAS (sin FKs problemáticas)
 
 // Usuario ↔ Ventas
 db.usuario.hasMany(db.venta, { foreignKey: 'id_vendedor' });
@@ -48,7 +46,7 @@ db.detalleVenta.belongsTo(db.venta, { foreignKey: 'id_venta' });
 db.partido.hasMany(db.partido_localidad, { foreignKey: 'id_partido' });
 db.partido_localidad.belongsTo(db.partido, { foreignKey: 'id_partido' });
 
-// Localidad ↔ PartidoLocalidad (usando nombre)
+// Localidad ↔ PartidoLocalidad
 db.localidad.hasMany(db.partido_localidad, { foreignKey: 'nombre', sourceKey: 'nombre' });
 db.partido_localidad.belongsTo(db.localidad, { foreignKey: 'nombre', targetKey: 'nombre' });
 
@@ -56,8 +54,7 @@ db.partido_localidad.belongsTo(db.localidad, { foreignKey: 'nombre', targetKey: 
 db.partido.hasMany(db.inventarioBoletos, { foreignKey: 'id_partido' });
 db.inventarioBoletos.belongsTo(db.partido, { foreignKey: 'id_partido' });
 
-// InventarioBoletos ↔ Venta (usando id_inventario si lo tienes en el modelo venta)
-// Si no tienes id_inventario en venta, puedes comentar estas relaciones:
+// InventarioBoletos ↔ Venta
 db.inventarioBoletos.hasMany(db.venta, { 
   foreignKey: 'id_inventario',
   sourceKey: 'id_inventario' 
@@ -67,14 +64,7 @@ db.venta.belongsTo(db.inventarioBoletos, {
   targetKey: 'id_inventario' 
 });
 
-// InventarioBoletos ↔ DetalleVenta (relación por nombre_partido sin FK)
-db.inventarioBoletos.hasMany(db.detalleVenta, { 
-  foreignKey: 'nombre_partido', 
-  sourceKey: 'nombre_partido' 
-});
-db.detalleVenta.belongsTo(db.inventarioBoletos, { 
-  foreignKey: 'nombre_partido', 
-  targetKey: 'nombre_partido' 
-});
+// ELIMINADA: La relación problemática con detalle_ventas
+// Si necesitas esta relación, debes usar id_inventario en lugar de nombre_partido
 
 module.exports = db;
