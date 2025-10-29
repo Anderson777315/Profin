@@ -20,7 +20,7 @@ module.exports = app => {
     // Buscar localidad por nombre
     router.get("/buscar/:nombre", localidad.findByName);
 
-    router.delete("/:id", localidades.delete);
+    router.delete("/:id", localidad.delete);
 
     // ✅ AGREGAR ESTA RUTA TEMPORAL PARA DEBUG
     router.get("/debug/estados", async (req, res) => {
