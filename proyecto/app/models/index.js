@@ -56,17 +56,18 @@ db.partido_localidad.belongsTo(db.localidad, { foreignKey: 'nombre', targetKey: 
 db.partido.hasMany(db.inventarioBoletos, { foreignKey: 'id_partido' });
 db.inventarioBoletos.belongsTo(db.partido, { foreignKey: 'id_partido' });
 
-// CORRECCIÓN: InventarioBoletos ↔ Venta (usando id_inventario)
+// InventarioBoletos ↔ Venta (usando id_inventario si lo tienes en el modelo venta)
+// Si no tienes id_inventario en venta, puedes comentar estas relaciones:
 db.inventarioBoletos.hasMany(db.venta, { 
-  foreignKey: 'id_inventario',  // Cambiado de id_partido a id_inventario
+  foreignKey: 'id_inventario',
   sourceKey: 'id_inventario' 
 });
 db.venta.belongsTo(db.inventarioBoletos, { 
-  foreignKey: 'id_inventario',  // Cambiado de id_partido a id_inventario
+  foreignKey: 'id_inventario',
   targetKey: 'id_inventario' 
 });
 
-// InventarioBoletos ↔ DetalleVenta (manteniendo nombre_partido si lo necesitas)
+// InventarioBoletos ↔ DetalleVenta (relación por nombre_partido sin FK)
 db.inventarioBoletos.hasMany(db.detalleVenta, { 
   foreignKey: 'nombre_partido', 
   sourceKey: 'nombre_partido' 
