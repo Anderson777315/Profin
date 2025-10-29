@@ -100,7 +100,7 @@ exports.findAllActive = (req, res) => {
 exports.delete = async (req, res) => {
     const id = req.params.id;
     try {
-        const deleted = await db.localidades.destroy({
+        const deleted = await db.localidad.destroy({
             where: { id_localidad: id }
         });
 
