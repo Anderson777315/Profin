@@ -7,6 +7,8 @@ module.exports = app => {
     router.get("/", detalleVenta.findAll);
     router.get("/search/:id_detalle", detalleVenta.findOne);  
     router.put("/:id_detalle", detalleVenta.update);
+    router.get("/precio-actual", detalleVenta.findPrecioActual);
+    router.post("/venta-completa", detalleVenta.createVentaCompleta);
    
     app.use('/api/detalleVentas', router);
-}
+};
