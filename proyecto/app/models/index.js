@@ -52,15 +52,28 @@ db.partido_localidad.belongsTo(db.partido, { foreignKey: 'id_partido' });
 db.localidad.hasMany(db.partido_localidad, { foreignKey: 'nombre', sourceKey: 'nombre' });
 db.partido_localidad.belongsTo(db.localidad, { foreignKey: 'nombre', targetKey: 'nombre' });
 
-// Partido ↔ InventarioBoletos (para generar nombre_partido automáticamente)
+// Partido ↔ InventarioBoletos
 db.partido.hasMany(db.inventarioBoletos, { foreignKey: 'id_partido' });
 db.inventarioBoletos.belongsTo(db.partido, { foreignKey: 'id_partido' });
 
-// InventarioBoletos ↔ Venta y DetalleVenta
-db.inventarioBoletos.hasMany(db.detalleVenta, { foreignKey: 'nombre_partido', sourceKey: 'nombre_partido' });
-db.detalleVenta.belongsTo(db.inventarioBoletos, { foreignKey: 'nombre_partido', targetKey: 'nombre_partido' });
+// CORRECCIÓN: InventarioBoletos ↔ Venta (usando id_inventario)
+db.inventarioBoletos.hasMany(db.venta, { 
+  foreignKey: 'id_inventario',  // Cambiado de id_partido a id_inventario
+  sourceKey: 'id_inventario' 
+});
+db.venta.belongsTo(db.inventarioBoletos, { 
+  foreignKey: 'id_inventario',  // Cambiado de id_partido a id_inventario
+  targetKey: 'id_inventario' 
+});
 
-db.inventarioBoletos.hasMany(db.venta, { foreignKey: 'id_partido', sourceKey: 'id_partido' });
-db.venta.belongsTo(db.inventarioBoletos, { foreignKey: 'id_partido', targetKey: 'id_partido' });
+// InventarioBoletos ↔ DetalleVenta (manteniendo nombre_partido si lo necesitas)
+db.inventarioBoletos.hasMany(db.detalleVenta, { 
+  foreignKey: 'nombre_partido', 
+  sourceKey: 'nombre_partido' 
+});
+db.detalleVenta.belongsTo(db.inventarioBoletos, { 
+  foreignKey: 'nombre_partido', 
+  targetKey: 'nombre_partido' 
+});
 
 module.exports = db;

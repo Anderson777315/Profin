@@ -7,7 +7,13 @@ module.exports = (sequelize, Sequelize) => {
         },
         id_vendedor: {
             type: Sequelize.INTEGER,
-            allowNull: false
+            allowNull: false,
+            references: {
+                model: 'usuarios',
+                key: 'id_usuario'
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'CASCADE'
         },
         cliente_nombre: {
             type: Sequelize.STRING(100),
@@ -17,15 +23,19 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING(20),
             allowNull: false
         },
-        id_partido: {
+        id_inventario: {  // Cambiado por la clave primaria real
             type: Sequelize.INTEGER,
             allowNull: false,
             references: {
-                model: 'inventario_boletos', // referencia a la tabla inventario_boletos
-                key: 'id_partido'
+                model: 'inventario_boletos',
+                key: 'id_inventario'  // Referencia a la PK real
             },
             onUpdate: 'CASCADE',
             onDelete: 'CASCADE'
+        },
+        id_partido: {  // Mantenemos id_partido pero sin FK
+            type: Sequelize.INTEGER,
+            allowNull: false
         },
         cantidad: {
             type: Sequelize.INTEGER,
