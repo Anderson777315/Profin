@@ -96,3 +96,22 @@ exports.findAllActive = (req, res) => {
     .then(data => res.send(data))
     .catch(err => res.status(500).send({ message: err.message || "Error al obtener las localidades activas." }));
 };
+
+exports.delete = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const deleted = await db.localidades.destroy({
+            where: { id_localidad: id }
+        });
+
+        if (deleted) {
+            res.status(200).send({ message: "Localidad eliminada correctamente." });
+        } else {
+            res.status(404).send({ message: "Localidad no encontrada." });
+        }
+    } catch (err) {
+        res.status(500).send({
+            message: "Error al eliminar la localidad: " + err.message
+        });
+    }
+};
