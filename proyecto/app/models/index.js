@@ -34,27 +34,27 @@ db.detalleVenta = require("./detalleVenta.model.js")(sequelize, Sequelize);
 
 // RELACIONES SIMPLIFICADAS (sin FKs problemáticas)
 
-// Usuario ↔ Ventas
+// Usuario / Ventas
 db.usuario.hasMany(db.venta, { foreignKey: 'id_vendedor' });
 db.venta.belongsTo(db.usuario, { foreignKey: 'id_vendedor' });
 
-// Venta ↔ DetalleVenta
+// Venta / DetalleVenta
 db.venta.hasMany(db.detalleVenta, { foreignKey: 'id_venta' });
 db.detalleVenta.belongsTo(db.venta, { foreignKey: 'id_venta' });
 
-// Partido ↔ PartidoLocalidad
+// Partido / PartidoLocalidad
 db.partido.hasMany(db.partido_localidad, { foreignKey: 'id_partido' });
 db.partido_localidad.belongsTo(db.partido, { foreignKey: 'id_partido' });
 
-// Localidad ↔ PartidoLocalidad
+// Localidad / PartidoLocalidad
 db.localidad.hasMany(db.partido_localidad, { foreignKey: 'nombre', sourceKey: 'nombre' });
 db.partido_localidad.belongsTo(db.localidad, { foreignKey: 'nombre', targetKey: 'nombre' });
 
-// Partido ↔ InventarioBoletos
+// Partido / InventarioBoletos
 db.partido.hasMany(db.inventarioBoletos, { foreignKey: 'id_partido' });
 db.inventarioBoletos.belongsTo(db.partido, { foreignKey: 'id_partido' });
 
-// InventarioBoletos ↔ Venta
+// InventarioBoletos / Venta
 db.inventarioBoletos.hasMany(db.venta, { 
   foreignKey: 'id_inventario',
   sourceKey: 'id_inventario' 
@@ -64,7 +64,35 @@ db.venta.belongsTo(db.inventarioBoletos, {
   targetKey: 'id_inventario' 
 });
 
-// ELIMINADA: La relación problemática con detalle_ventas
-// Si necesitas esta relación, debes usar id_inventario en lugar de nombre_partido
+// NUEVAS RELACIONES AGREGADAS - Localidad / InventarioBoletos
+db.localidad.hasMany(db.inventarioBoletos, {
+  foreignKey: 'nombre_localidad',
+  sourceKey: 'nombre'
+});
+
+db.inventarioBoletos.belongsTo(db.localidad, {
+  foreignKey: 'nombre_localidad',
+  targetKey: 'nombre'
+});
+
+// RELACIÓN DETALLEVENTA / LOCALIDAD (para obtener precios)
+db.localidad.hasMany(db.detalleVenta, {
+  foreignKey: 'nombre_localidad',
+  sourceKey: 'nombre'
+});
+
+db.detalleVenta.belongsTo(db.localidad, {
+  foreignKey: 'nombre_localidad',
+  targetKey: 'nombre'
+});
+
+// RELACIÓN DETALLEVENTA / INVENTARIO (opcional)
+db.inventarioBoletos.hasMany(db.detalleVenta, {
+  foreignKey: 'id_inventario'
+});
+
+db.detalleVenta.belongsTo(db.inventarioBoletos, {
+  foreignKey: 'id_inventario'
+});
 
 module.exports = db;

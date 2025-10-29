@@ -115,3 +115,35 @@ exports.delete = async (req, res) => {
         });
     }
 };
+// Obtener localidades con inventario por partido
+exports.findWithInventory = async (req, res) => {
+    try {
+        const nombrePartido = req.params.partido;
+        
+        const localidadesConInventario = await db.sequelize.query(`
+            SELECT 
+                l.id_localidad,
+                l.nombre,
+                l.precio,
+                l.capacidad_maxima,
+                COALESCE(ib.cantidad_disponible, l.capacidad_maxima) as cantidad_disponible,
+                ib.nombre_partido,
+                ib.id_inventario,
+                l.estado
+            FROM localidades l
+            LEFT JOIN inventario_boletos ib ON l.nombre = ib.nombre_localidad 
+                AND ib.nombre_partido = :nombrePartido
+            WHERE l.estado = 'Disponible'
+        `, {
+            replacements: { nombrePartido: nombrePartido },
+            type: db.sequelize.QueryTypes.SELECT
+        });
+
+        res.send(localidadesConInventario);
+
+    } catch (err) {
+        res.status(500).send({ 
+            message: err.message || "Error al obtener localidades con inventario." 
+        });
+    }
+};

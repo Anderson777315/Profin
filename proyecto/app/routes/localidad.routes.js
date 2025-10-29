@@ -21,8 +21,8 @@ module.exports = app => {
     router.get("/buscar/:nombre", localidad.findByName);
 
     router.delete("/:id", localidad.delete);
-
-    // ✅ AGREGAR ESTA RUTA TEMPORAL PARA DEBUG
+router.get("/inventario/:partido", localidad.findWithInventory);
+    // AGREGAR ESTA RUTA TEMPORAL PARA DEBUG
     router.get("/debug/estados", async (req, res) => {
         try {
             const localidades = await Localidad.findAll();
