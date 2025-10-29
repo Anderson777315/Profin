@@ -17,9 +17,15 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.STRING(20),
             allowNull: false
         },
-        partido: {
-            type: Sequelize.STRING(200),
-            allowNull: false
+        id_partido: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'inventario_boletos', // referencia a la tabla inventario_boletos
+                key: 'id_partido'
+            },
+            onUpdate: 'CASCADE',
+            onDelete: 'CASCADE'
         },
         cantidad: {
             type: Sequelize.INTEGER,
