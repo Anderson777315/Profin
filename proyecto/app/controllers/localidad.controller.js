@@ -117,8 +117,12 @@ exports.delete = async (req, res) => {
 };
 // Obtener localidades con inventario por partido
 exports.findWithInventory = async (req, res) => {
+    console.log("EJECUTANDO findWithInventory - LLEGÓ PETICIÓN");
+    console.log("Parámetro partido recibido:", req.params.partido);
+    
     try {
         const nombrePartido = req.params.partido;
+        console.log("🔍 Buscando inventario para:", nombrePartido);
         
         const localidadesConInventario = await db.sequelize.query(`
             SELECT 
@@ -139,9 +143,13 @@ exports.findWithInventory = async (req, res) => {
             type: db.sequelize.QueryTypes.SELECT
         });
 
+        console.log("Resultados encontrados:", localidadesConInventario.length);
+        console.log("Datos:", localidadesConInventario);
+        
         res.send(localidadesConInventario);
 
     } catch (err) {
+        console.error("Error en findWithInventory:", err);
         res.status(500).send({ 
             message: err.message || "Error al obtener localidades con inventario." 
         });

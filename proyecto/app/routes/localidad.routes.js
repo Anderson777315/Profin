@@ -21,7 +21,10 @@ module.exports = app => {
     router.get("/buscar/:nombre", localidad.findByName);
 
     router.delete("/:id", localidad.delete);
-router.get("/inventario/:partido", localidad.findWithInventory);
+
+    // NUEVA RUTA - Localidades con inventario por partido (AGREGAR ESTA LÍNEA)
+    router.get("/inventario/:partido", localidad.findWithInventory);
+
     // AGREGAR ESTA RUTA TEMPORAL PARA DEBUG
     router.get("/debug/estados", async (req, res) => {
         try {
