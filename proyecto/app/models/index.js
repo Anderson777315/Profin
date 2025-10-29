@@ -34,29 +34,29 @@ db.inventarioBoletos = require("./inventario.model.js")(sequelize, Sequelize);
 db.venta = require("./venta.model.js")(sequelize, Sequelize);
 db.detalleVenta = require("./detalleVenta.model.js")(sequelize, Sequelize);
 
-//RELACIONES 
+// RELACIONES 
 
-// Usuario  Ventas
+// Usuario ↔ Ventas
 db.usuario.hasMany(db.venta, { foreignKey: 'id_vendedor' });
 db.venta.belongsTo(db.usuario, { foreignKey: 'id_vendedor' });
 
-// Venta / DetalleVenta
+// Venta ↔ DetalleVenta
 db.venta.hasMany(db.detalleVenta, { foreignKey: 'id_venta' });
 db.detalleVenta.belongsTo(db.venta, { foreignKey: 'id_venta' });
 
-// Partido / PartidoLocalidad
+// Partido ↔ PartidoLocalidad
 db.partido.hasMany(db.partido_localidad, { foreignKey: 'id_partido' });
 db.partido_localidad.belongsTo(db.partido, { foreignKey: 'id_partido' });
 
-// Localidad / PartidoLocalidad (usando nombre)
+// Localidad ↔ PartidoLocalidad (usando nombre)
 db.localidad.hasMany(db.partido_localidad, { foreignKey: 'nombre', sourceKey: 'nombre' });
 db.partido_localidad.belongsTo(db.localidad, { foreignKey: 'nombre', targetKey: 'nombre' });
 
-// PartidoLocalidad / InventarioBoletos (relación por ID)
-db.partido_localidad.hasOne(db.inventarioBoletos, { foreignKey: 'id_partido_localidad' });
-db.inventarioBoletos.belongsTo(db.partido_localidad, { foreignKey: 'id_partido_localidad' });
+// Partido ↔ InventarioBoletos (para generar nombre_partido automáticamente)
+db.partido.hasMany(db.inventarioBoletos, { foreignKey: 'id_partido' });
+db.inventarioBoletos.belongsTo(db.partido, { foreignKey: 'id_partido' });
 
-// InventarioBoletos / Venta y DetalleVenta (para consultas rápidas)
+// InventarioBoletos ↔ Venta y DetalleVenta (para consultas rápidas)
 db.inventarioBoletos.hasMany(db.detalleVenta, { foreignKey: 'nombre_partido', sourceKey: 'nombre_partido' });
 db.detalleVenta.belongsTo(db.inventarioBoletos, { foreignKey: 'nombre_partido', targetKey: 'nombre_partido' });
 

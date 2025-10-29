@@ -1,30 +1,40 @@
 const db = require("../models");
 const InventarioBoletos = db.inventarioBoletos;
+const Partido = db.partido; // Importamos el modelo Partido
 const Op = db.Sequelize.Op;
 
 // Crear un nuevo registro de inventario
 exports.create = async (req, res) => {
-    if (!req.body.nombre_partido || !req.body.nombre_localidad || req.body.cantidad_total == null) {
+    if (!req.body.id_partido || !req.body.nombre_localidad || req.body.cantidad_total == null) {
         return res.status(400).send({ message: "Faltan datos obligatorios!" });
     }
 
     try {
-        //  VERIFICAR SI YA EXISTE esta combinación
+        // Obtener partido para generar el nombre automáticamente
+        const partido = await Partido.findByPk(req.body.id_partido);
+        if (!partido) {
+            return res.status(400).send({ message: "Partido no encontrado" });
+        }
+
+        const nombre_partido = `${partido.equipo_local} vs ${partido.equipo_visitante}`;
+
+        // VERIFICAR SI YA EXISTE esta combinación
         const inventarioExistente = await InventarioBoletos.findOne({
             where: {
-                nombre_partido: req.body.nombre_partido,
+                nombre_partido,
                 nombre_localidad: req.body.nombre_localidad
             }
         });
 
         if (inventarioExistente) {
             return res.status(400).send({ 
-                message: `Ya existe inventario para: ${req.body.nombre_partido} - ${req.body.nombre_localidad}. Use actualizar en lugar de crear.` 
+                message: `Ya existe inventario para: ${nombre_partido} - ${req.body.nombre_localidad}. Use actualizar en lugar de crear.` 
             });
         }
 
         const inventario = {
-            nombre_partido: req.body.nombre_partido,
+            id_partido: req.body.id_partido, // Guardamos también el id del partido
+            nombre_partido, // Nombre generado automáticamente
             nombre_localidad: req.body.nombre_localidad,
             cantidad_total: req.body.cantidad_total,
             cantidad_disponible: req.body.cantidad_disponible || req.body.cantidad_total,
