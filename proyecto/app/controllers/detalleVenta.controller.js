@@ -39,13 +39,26 @@ exports.create = async (req, res) => {
 };
 
 // Obtener todos los detalles de venta
-exports.findAll = (req, res) => {
+exports.findAll = async (req, res) => {
+  try {
     const id_venta = req.query.id_venta;
-    const condition = id_venta ? { id_venta } : null;
+    const condition = id_venta ? { id_venta } : undefined;
 
-    DetalleVenta.findAll({ where: condition })
-        .then(data => res.send(data))
-        .catch(err => res.status(500).send({ message: err.message || "Error al obtener los detalles de venta." }));
+    const data = await DetalleVenta
+      .unscoped()
+      .findAll({
+        where: condition,
+        attributes: [
+          'id_detalle','id_venta','nombre_partido','nombre_localidad',
+          'cantidad','precio_unitario','subtotal','descuento_aplicado','impuesto'
+        ]
+      });
+
+    res.send(data);
+  } catch (err) {
+    console.error('findAll DetalleVenta error:', err);
+    res.status(500).send({ message: err.message || 'Error al obtener los detalles de venta.' });
+  }
 };
 
 // Obtener un detalle de venta por ID

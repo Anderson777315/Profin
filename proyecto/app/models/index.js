@@ -54,16 +54,6 @@ db.partido_localidad.belongsTo(db.localidad, { foreignKey: 'nombre', targetKey: 
 db.partido.hasMany(db.inventarioBoletos, { foreignKey: 'id_partido' });
 db.inventarioBoletos.belongsTo(db.partido, { foreignKey: 'id_partido' });
 
-// InventarioBoletos / Venta
-db.inventarioBoletos.hasMany(db.venta, { 
-  foreignKey: 'id_inventario',
-  sourceKey: 'id_inventario' 
-});
-db.venta.belongsTo(db.inventarioBoletos, { 
-  foreignKey: 'id_inventario',
-  targetKey: 'id_inventario' 
-});
-
 // NUEVAS RELACIONES AGREGADAS - Localidad / InventarioBoletos
 db.localidad.hasMany(db.inventarioBoletos, {
   foreignKey: 'nombre_localidad',
