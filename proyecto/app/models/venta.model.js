@@ -66,9 +66,9 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.DATE,
             defaultValue: Sequelize.NOW
         },
-        estado: {
-            type: Sequelize.ENUM("pagado", "pendiente", "anulado"),
-            defaultValue: "pagado"
+             estado: {
+            type: Sequelize.ENUM("Tarjeta", "pendiente"),
+            defaultValue: "Tarejeta"
         }
     });
 
