@@ -68,7 +68,7 @@ module.exports = (sequelize, Sequelize) => {
         },
              estado: {
             type: Sequelize.ENUM("Tarjeta", "pendiente"),
-            defaultValue: "Tarejeta"
+            defaultValue: "Tarjeta"
         }
     });
 
